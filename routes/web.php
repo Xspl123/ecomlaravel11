@@ -36,4 +36,8 @@ Route::middleware(['auth', AuthAdmin::class])->group(function () {
     Route::get('/categories/edit/{id}', [AdminController::class, 'CategoryEdit'])->name('categories.edit');
     Route::post('/categories/{id}', [AdminController::class, 'CategoryUpdate'])->name('categories.update');
     Route::delete('/categories/{id}', [AdminController::class, 'CategoryDestroy'])->name('categories.destroy');
+    //Products routes
+    Route::get('admin/products', [AdminController::class, 'products'])->name('admin.products');
+    Route::get('admin/products/new', [AdminController::class, 'ProductsCreate'])->name('admin.products.create');
+    Route::post('admin/products/store', [AdminController::class, 'ProductsStore'])->name('admin.products.store');
 });

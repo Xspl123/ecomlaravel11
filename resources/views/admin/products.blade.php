@@ -5,7 +5,7 @@
 <div class="main-content-inner">
     <div class="main-content-wrap">
         <div class="flex items-center flex-wrap justify-between gap20 mb-27">
-            <h3>Categories</h3>
+            <h3>All Products</h3>
             <ul class="breadcrumbs flex items-center flex-wrap justify-start gap10">
                 <li>
                     <a href="{{ route('admin.index') }}">
@@ -16,37 +16,15 @@
                     <i class="icon-chevron-right"></i>
                 </li>
                 <li>
-                    <div class="text-tiny">Categories</div>
+                    <div class="text-tiny">All Products</div>
                 </li>
             </ul>
         </div>
 
         <div class="wg-box">
-        <!-- SweetAlert for Success Message -->
-    @if (session('success'))
-        <script>
-            Swal.fire({
-                icon: 'success',
-                title: 'Success',
-                text: '{{ session('success') }}',
-            });
-        </script>
-    @endif
-
-    <!-- SweetAlert for Error Message -->
-    @if (session('error'))
-        <script>
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: '{{ session('error') }}',
-            });
-        </script>
-    @endif
             <div class="flex items-center justify-between gap10 flex-wrap">
-
                 <div class="wg-filter flex-grow">
-                    <form class="form-search">
+                    <form class="form-search" method="GET" action="{{ route('admin.index') }}">
                         <fieldset class="name">
                             <input type="text" placeholder="Search here..." class="" name="name" tabindex="2" value="" aria-required="true" required="">
                         </fieldset>
@@ -55,44 +33,62 @@
                         </div>
                     </form>
                 </div>
-                <a class="tf-button style-1 w208" href="{{ route('admin.categories_new') }}"><i class="icon-plus"></i>Add new</a>
+                <a class="tf-button style-1 w208" href="{{ route('admin.products.create') }}"><i class="icon-plus"></i>Add new</a>
             </div>
-            <div class="wg-table table-all-user">
+            <div class="table-responsive">
                 <table class="table table-striped table-bordered">
                     <thead>
                         <tr>
                             <th>ID</th>
                             <th>Name</th>
-                            <th>Slug</th>
-                            <th>Products</th>
-                            <th>Action</th>
+                            <th>Price</th>
+                            <th>Sale Price</th>
+                            <th>SKU</th>
+                            <th>Category</th>
+                            <th>Brand</th>
+                            <th>Featured</th>
+                            <th>Stock</th>
+                            <th>Quantity</th>
+                            <th style="width: 100px;">Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($categories as $category)
+                        @foreach ($products as $product)
                         <tr>
-                            <td>{{ $category->id }}</td>
+                            <td>{{ $product->id }}</td>
                             <td class="pname">
                                 <div class="image">
-                                    <img src="{{ asset('uploads/categories/' . $category->image) }}" alt="{{ $category->name }}" class="image">
+                                    <img src="{{ asset('uploads/products/thumbnails/' . $product->image) }}" alt="{{ $product->name }}" class="image" width="50">
                                 </div>
                                 <div class="name">
-                                    <a href="#" class="body-title-2">{{ $category->name }}</a>
+                                    <a href="#" class="body-title-2">{{ $product->name }}</a>
+                                    <div class="text-tiny mt-3">{{ $product->slug }}</div>
                                 </div>
                             </td>
-                            <td>{{ $category->slug }}</td>
-                            <td><a href="#" target="_blank">0</a></td>
+                            <td>{{ $product->regular_price }}</td>
+                            <td>{{ $product->sale_price }}</td>
+                            <td>{{ $product->SKU }}</td>
+                            <td>{{ $product->category->name }}</td>
+                            <td>{{ $product->brand->name }}</td>
+                            <td>{{ $product->featured ? 'Yes' : 'No' }}</td>
+                            <td>{{ $product->stock_status }}</td>
+                            <td>{{ $product->quantity }}</td>
                             <td>
                                 <div class="list-icon-function">
-                                    <a href="{{ route('categories.edit', $category->id) }}">
+                                    <a href="#" target="_blank">
+                                        <div class="item eye">
+                                            <i class="icon-eye"></i>
+                                        </div>
+                                    </a>
+                                    <a href="#">
                                         <div class="item edit">
                                             <i class="icon-edit-3"></i>
                                         </div>
                                     </a>
-                                    <form action="{{ route('categories.destroy', $category->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this category?');">
+                                    <form action="#" method="POST" style="display:inline;">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="item text-danger delete">
+                                        <button type="submit" class="item text-danger delete" style="padding: 10px 0 0 0;;" onclick="return confirm('Are you sure?')">
                                             <i class="icon-trash-2"></i>
                                         </button>
                                     </form>
@@ -103,9 +99,10 @@
                     </tbody>
                 </table>
             </div>
+
             <div class="divider"></div>
             <div class="flex items-center justify-between flex-wrap gap10 wgp-pagination">
-                {{ $categories->links('pagination::bootstrap-5') }}
+                {{ $products->links('pagination::bootstrap-5') }}
             </div>
         </div>
     </div>

@@ -1893,8 +1893,8 @@ a:hover, a:focus {
   display: -webkit-flex;
   display: flex;
   align-items: center;
-  justify-content: start;
-  gap: 20px;
+  justify-content: space-between;
+  /* gap: 20px; */
 }
 .list-icon-function .item {
   font-size: 20px;
