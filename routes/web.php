@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ShopController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\AuthAdmin;
 use Illuminate\Support\Facades\Auth;
@@ -12,6 +13,8 @@ use Illuminate\Support\Facades\Route;
 Auth::routes();
 
 Route::get('/', [HomeController::class, 'index'])->name('home.index');
+Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
+Route::get('/shop/product/{product_slug}', [ShopController::class, 'product_details'])->name('shop.product_details');
 
 
 Route::middleware(['auth'])->group(function () {
@@ -40,4 +43,9 @@ Route::middleware(['auth', AuthAdmin::class])->group(function () {
     Route::get('admin/products', [AdminController::class, 'products'])->name('admin.products');
     Route::get('admin/products/new', [AdminController::class, 'ProductsCreate'])->name('admin.products.create');
     Route::post('admin/products/store', [AdminController::class, 'ProductsStore'])->name('admin.products.store');
+    Route::get('/products/edit/{id}', [AdminController::class, 'ProductsEdit'])->name('admin.products.edit');
+    Route::post('/products/{id}', [AdminController::class, 'ProductsUpdate'])->name('admin.products.update');
+    Route::delete('/products/{id}', [AdminController::class, 'ProductDestroy'])->name('admin.products.destroy');
+    Route::get('/product-show/{id}', [AdminController::class, 'ProductsShow'])->name('admin.products.show');
+
 });

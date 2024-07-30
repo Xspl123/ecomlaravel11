@@ -231,6 +231,7 @@ class AdminController extends Controller
 
     public function ProductsStore(Request $request)
     {
+       // dd($request);
         // Validate the request
         $request->validate([
             'name' => 'required|string|max:100',
@@ -278,7 +279,8 @@ class AdminController extends Controller
                 $galleryImageName = "{$originalName}_{$timestamp}.{$extension}";
 
                 // Ensure the directory exists
-                $galleryPath = public_path('/uploads/products/gallery');
+                $galleryPath = public_path('/uploads/products');
+
                 if (!File::exists($galleryPath)) {
                     File::makeDirectory($galleryPath, 0755, true, true);
                 }
@@ -286,6 +288,7 @@ class AdminController extends Controller
                 // Store file
                 $galleryImage->move($galleryPath, $galleryImageName);
                 $galleryNames[] = $galleryImageName;
+
             }
         }
 
@@ -309,4 +312,138 @@ class AdminController extends Controller
 
         return redirect()->route('admin.products')->with('success', 'Product created successfully.');
     }
+
+    public function ProductsShow($id){
+        $product = Product::findOrFail($id);
+        return view('admin.product-show', compact('product'));
+    }
+
+    public function ProductsEdit($id){
+        $product = Product::findOrFail($id);
+        $brands = Brand::orderBy('created_at', 'desc')->pluck('name', 'id');
+        $categories = Category::orderBy('created_at', 'desc')->pluck('name', 'id');
+        return view('admin.product-edit', compact('product', 'brands', 'categories'));
+    }
+
+    public function ProductsUpdate(Request $request, $id)
+    {
+        // Find the product by ID
+        $product = Product::findOrFail($id);
+
+        // Validate the request
+        $request->validate([
+            'name' => 'required|string|max:100',
+            'slug' => 'required|string|max:100|unique:products,slug,' . $id,
+            'category_id' => 'required|exists:categories,id',
+            'brand_id' => 'required|exists:brands,id',
+            'short_description' => 'required|string|max:100',
+            'description' => 'required|string',
+            'regular_price' => 'required|numeric',
+            'sale_price' => 'required|numeric',
+            'SKU' => 'required|string|max:100|unique:products,SKU,' . $id,
+            'quantity' => 'required|integer',
+            'stock_status' => 'required|string|in:instock,outofstock',
+            'featured' => 'required|boolean',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+        ]);
+
+        // Handle the main image upload
+        $imageName = $product->image;
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $timestamp = time();
+            $originalName = pathinfo($image->getClientOriginalName(), PATHINFO_FILENAME);
+            $extension = $image->getClientOriginalExtension();
+            $imageName = "{$originalName}_{$timestamp}.{$extension}";
+
+            // Ensure the directory exists
+            $destinationPath = public_path('/uploads/products/thumbnails');
+            if (!File::exists($destinationPath)) {
+                File::makeDirectory($destinationPath, 0755, true, true);
+            }
+
+            // Store file
+            $image->move($destinationPath, $imageName);
+
+            // Delete the old image if exists
+            if ($product->image && File::exists($destinationPath . '/' . $product->image)) {
+                File::delete($destinationPath . '/' . $product->image);
+            }
+        }
+
+        // Handle gallery images upload
+        $galleryNames = $product->images ? json_decode($product->images) : [];
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $galleryImage) {
+                $timestamp = time();
+                $originalName = pathinfo($galleryImage->getClientOriginalName(), PATHINFO_FILENAME);
+                $extension = $galleryImage->getClientOriginalExtension();
+                $galleryImageName = "{$originalName}_{$timestamp}.{$extension}";
+
+                // Ensure the directory exists
+                $galleryPath = public_path('/uploads/products/gallery');
+                if (!File::exists($galleryPath)) {
+                    File::makeDirectory($galleryPath, 0755, true, true);
+                }
+
+                // Store file
+                $galleryImage->move($galleryPath, $galleryImageName);
+                $galleryNames[] = $galleryImageName;
+            }
+        }
+
+        // Update the product
+        $product->update([
+            'name' => $request->input('name'),
+            'slug' => $request->input('slug'),
+            'category_id' => $request->input('category_id'),
+            'brand_id' => $request->input('brand_id'),
+            'short_description' => $request->input('short_description'),
+            'description' => $request->input('description'),
+            'regular_price' => $request->input('regular_price'),
+            'sale_price' => $request->input('sale_price'),
+            'SKU' => $request->input('SKU'),
+            'quantity' => $request->input('quantity'),
+            'stock_status' => $request->input('stock_status'),
+            'featured' => $request->input('featured'),
+            'image' => $imageName,
+            'images' => json_encode($galleryNames),
+        ]);
+
+        return redirect()->route('admin.products')->with('success', 'Product updated successfully.');
+    }
+
+    public function ProductDestroy($id)
+    {
+        // Find the product by its ID
+        $product = Product::findOrFail($id);
+
+        // Delete the product's main image from the server
+        if ($product->image) {
+            $imagePath = public_path('/uploads/products/thumbnails/' . $product->image);
+            if (File::exists($imagePath)) {
+                File::delete($imagePath);
+            }
+        }
+
+        // Delete the product's gallery images from the server
+        if ($product->gallery_images) {
+            $galleryImages = json_decode($product->gallery_images);
+            foreach ($galleryImages as $galleryImage) {
+                $galleryImagePath = public_path('/uploads/products/gallery/' . $galleryImage);
+                if (File::exists($galleryImagePath)) {
+                    File::delete($galleryImagePath);
+                }
+            }
+        }
+
+        // Delete the product from the database
+        $product->delete();
+
+        // Redirect to the products list with a success message
+        return redirect()->route('admin.products')->with('success', 'Product deleted successfully.');
+    }
+
+
 }

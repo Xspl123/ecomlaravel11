@@ -36,6 +36,11 @@
                 <a class="tf-button style-1 w208" href="{{ route('admin.products.create') }}"><i class="icon-plus"></i>Add new</a>
             </div>
             <div class="table-responsive">
+                @if (session('success'))
+                <div class="alert alert-success">
+                    {{ session('success') }}
+                </div>
+                @endif
                 <table class="table table-striped table-bordered">
                     <thead>
                         <tr>
@@ -75,25 +80,55 @@
                             <td>{{ $product->quantity }}</td>
                             <td>
                                 <div class="list-icon-function">
-                                    <a href="#" target="_blank">
+                                    <!-- View button -->
+                                    <a href="{{ route('admin.products.show', $product->id) }}" target="_blank">
                                         <div class="item eye">
                                             <i class="icon-eye"></i>
                                         </div>
                                     </a>
-                                    <a href="#">
+                                    <!-- Edit button -->
+                                    <a href="{{ route('admin.products.edit', $product->id) }}">
                                         <div class="item edit">
                                             <i class="icon-edit-3"></i>
                                         </div>
                                     </a>
-                                    <form action="#" method="POST" style="display:inline;">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="item text-danger delete" style="padding: 10px 0 0 0;;" onclick="return confirm('Are you sure?')">
-                                            <i class="icon-trash-2"></i>
-                                        </button>
-                                    </form>
+                                    <!-- Delete form -->
+                                    <form class="delete-form" action="{{ route('admin.products.destroy', $product->id) }}" method="POST" style="display:inline;">
+            @csrf
+            @method('DELETE')
+            <button type="submit" class="item text-danger delete" style="padding: 10px 0 0 0;">
+                <i class="icon-trash-2"></i>
+            </button>
+        </form>
+
+                                    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.delete-form').forEach(form => {
+            form.addEventListener('submit', function (event) {
+                event.preventDefault(); // Prevent the default form submission
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "You won't be able to revert this!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, delete it!',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        this.submit(); // Submit the form if confirmed
+                    }
+                });
+            });
+        });
+    });
+</script>
+
                                 </div>
                             </td>
+
                         </tr>
                         @endforeach
                     </tbody>
