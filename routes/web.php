@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\UserController;
@@ -15,6 +16,10 @@ Auth::routes();
 Route::get('/', [HomeController::class, 'index'])->name('home.index');
 Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
 Route::get('/shop/product/{product_slug}', [ShopController::class, 'product_details'])->name('shop.product_details');
+Route::get('/shop/cart', [CartController::class, 'index'])->name('cart.index');
+Route::post('/shop/cart/add', [CartController::class, 'add'])->name('cart.add');
+Route::patch('/shop/cart/increase/{rowId}', [CartController::class, 'increase_cart_quantity'])->name('cart.increase');
+Route::patch('/shop/cart/decrease/{rowId}', [CartController::class, 'decrease_cart_quantity'])->name('cart.decrease');
 
 
 Route::middleware(['auth'])->group(function () {
