@@ -18,9 +18,10 @@ Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
 Route::get('/shop/product/{product_slug}', [ShopController::class, 'product_details'])->name('shop.product_details');
 Route::get('/shop/cart', [CartController::class, 'index'])->name('cart.index');
 Route::post('/shop/cart/add', [CartController::class, 'add'])->name('cart.add');
-Route::patch('/shop/cart/increase/{rowId}', [CartController::class, 'increase_cart_quantity'])->name('cart.increase');
-Route::patch('/shop/cart/decrease/{rowId}', [CartController::class, 'decrease_cart_quantity'])->name('cart.decrease');
-
+Route::put('/shop/cart/increase/{rowId}', [CartController::class, 'increase_cart_quantity'])->name('cart.increase');
+Route::put('/shop/cart/decrease/{rowId}', [CartController::class, 'decrease_cart_quantity'])->name('cart.decrease');
+Route::delete('/shop/cart/remove/{rowId}', [CartController::class, 'remove_cart_item'])->name('cart.remove');
+Route::delete('/shop/cart/clear', [CartController::class, 'clear_cart'])->name('cart.clear');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('account-dashboard', [UserController::class, 'index'])->name('user.index');
