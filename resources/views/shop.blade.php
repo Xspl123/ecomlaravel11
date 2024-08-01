@@ -1,7 +1,17 @@
 @extends('layouts.app')
 
 @section('content')
+<style>
+    .price-range__info {
+        white-space: nowrap;
+        /* Prevents line breaks within the span elements */
+    }
 
+    .price-range__info span {
+        margin-right: 0.5rem;
+        /* Adjust spacing as needed */
+    }
+</style>
 <main class="pt-90">
     <section class="shop-main container d-flex pt-4 pt-xl-5">
         <div class="shop-sidebar side-sticky bg-body" id="shopFilter">
@@ -27,43 +37,22 @@
                     <div id="accordion-filter-1" class="accordion-collapse collapse show border-0" aria-labelledby="accordion-heading-1" data-bs-parent="#categories-list">
                         <div class="accordion-body px-0 pb-0 pt-3">
                             <ul class="list list-inline mb-0">
-                                <li class="list-item">
-                                    <a href="#" class="menu-link py-1">Dresses</a>
+                                @foreach($categories as $category)
+                                <li class="list-inline-item d-flex justify-content-between align-items-center">
+                                    <span class="menu-link py-1">
+                                        <input type="checkbox" class="chk-category" name="categories[]" value="{{ $category->id }}" id="category-{{ $category->id }}" @if(in_array($category->id, explode(',', $fcategories))) checked @endif>
+                                        {{ $category->name }}
+                                    </span>
+                                    <span class="text-right float-end">
+                                        {{ $category->products->count() }}
+                                    </span>
                                 </li>
-                                <li class="list-item">
-                                    <a href="#" class="menu-link py-1">Shorts</a>
-                                </li>
-                                <li class="list-item">
-                                    <a href="#" class="menu-link py-1">Sweatshirts</a>
-                                </li>
-                                <li class="list-item">
-                                    <a href="#" class="menu-link py-1">Swimwear</a>
-                                </li>
-                                <li class="list-item">
-                                    <a href="#" class="menu-link py-1">Jackets</a>
-                                </li>
-                                <li class="list-item">
-                                    <a href="#" class="menu-link py-1">T-Shirts & Tops</a>
-                                </li>
-                                <li class="list-item">
-                                    <a href="#" class="menu-link py-1">Jeans</a>
-                                </li>
-                                <li class="list-item">
-                                    <a href="#" class="menu-link py-1">Trousers</a>
-                                </li>
-                                <li class="list-item">
-                                    <a href="#" class="menu-link py-1">Men</a>
-                                </li>
-                                <li class="list-item">
-                                    <a href="#" class="menu-link py-1">Jumpers & Cardigans</a>
-                                </li>
+                                @endforeach
                             </ul>
                         </div>
                     </div>
                 </div>
             </div>
-
-
             <div class="accordion" id="color-filters">
                 <div class="accordion-item mb-4 pb-3">
                     <h5 class="accordion-header" id="accordion-heading-1">
@@ -94,8 +83,6 @@
                     </div>
                 </div>
             </div>
-
-
             <div class="accordion" id="size-filters">
                 <div class="accordion-item mb-4 pb-3">
                     <h5 class="accordion-header" id="accordion-heading-size">
@@ -122,8 +109,6 @@
                     </div>
                 </div>
             </div>
-
-
             <div class="accordion" id="brand-filters">
                 <div class="accordion-item mb-4 pb-3">
                     <h5 class="accordion-header" id="accordion-heading-brand">
@@ -138,54 +123,24 @@
                     </h5>
                     <div id="accordion-filter-brand" class="accordion-collapse collapse show border-0" aria-labelledby="accordion-heading-brand" data-bs-parent="#brand-filters">
                         <div class="search-field multi-select accordion-body px-0 pb-0">
-                            <select class="d-none" multiple name="total-numbers-list">
-                                <option value="1">Adidas</option>
-                                <option value="2">Balmain</option>
-                                <option value="3">Balenciaga</option>
-                                <option value="4">Burberry</option>
-                                <option value="5">Kenzo</option>
-                                <option value="5">Givenchy</option>
-                                <option value="5">Zara</option>
-                            </select>
-                            <div class="search-field__input-wrapper mb-3">
-                                <input type="text" name="search_text" class="search-field__input form-control form-control-sm border-light border-2" placeholder="Search" />
-                            </div>
-                            <ul class="multi-select__list list-unstyled">
-                                <li class="search-suggestion__item multi-select__item text-primary js-search-select js-multi-select">
-                                    <span class="me-auto">Adidas</span>
-                                    <span class="text-secondary">2</span>
+                            <ul class="list list-inline mb-0 brand-list">
+                                @foreach ($brands as $brand)
+                                <li class="list-inline-item d-flex justify-content-between align-items-center">
+                                    <span class="menu-link py-1">
+                                        <input type="checkbox" class="chk-brand" id="brand-{{ $brand->id }}" name="brands[]" value="{{ $brand->id }}" @if(in_array($brand->id,
+                                        explode(",", $fbrands))) checked="checked" @endif>
+                                        {{ $brand->name }}
+                                    </span>
+                                    <span class="text-right float-end">
+                                        ({{ $brand->products->count() }})
+                                    </span>
                                 </li>
-                                <li class="search-suggestion__item multi-select__item text-primary js-search-select js-multi-select">
-                                    <span class="me-auto">Balmain</span>
-                                    <span class="text-secondary">7</span>
-                                </li>
-                                <li class="search-suggestion__item multi-select__item text-primary js-search-select js-multi-select">
-                                    <span class="me-auto">Balenciaga</span>
-                                    <span class="text-secondary">10</span>
-                                </li>
-                                <li class="search-suggestion__item multi-select__item text-primary js-search-select js-multi-select">
-                                    <span class="me-auto">Burberry</span>
-                                    <span class="text-secondary">39</span>
-                                </li>
-                                <li class="search-suggestion__item multi-select__item text-primary js-search-select js-multi-select">
-                                    <span class="me-auto">Kenzo</span>
-                                    <span class="text-secondary">95</span>
-                                </li>
-                                <li class="search-suggestion__item multi-select__item text-primary js-search-select js-multi-select">
-                                    <span class="me-auto">Givenchy</span>
-                                    <span class="text-secondary">1092</span>
-                                </li>
-                                <li class="search-suggestion__item multi-select__item text-primary js-search-select js-multi-select">
-                                    <span class="me-auto">Zara</span>
-                                    <span class="text-secondary">48</span>
-                                </li>
+                                @endforeach
                             </ul>
                         </div>
                     </div>
                 </div>
             </div>
-
-
             <div class="accordion" id="price-filters">
                 <div class="accordion-item mb-4">
                     <h5 class="accordion-header mb-2" id="accordion-heading-price">
@@ -199,16 +154,11 @@
                         </button>
                     </h5>
                     <div id="accordion-filter-price" class="accordion-collapse collapse show border-0" aria-labelledby="accordion-heading-price" data-bs-parent="#price-filters">
-                        <input class="price-range-slider" type="text" name="price_range" value="" data-slider-min="10" data-slider-max="1000" data-slider-step="5" data-slider-value="[250,450]" data-currency="$" />
+                        <input class="price-range-slider" type="text" data-slider-min="1" data-slider-max="500" data-slider-step="5" data-slider-value="[{{ $minPrice }}, {{ $maxPrice }}]" data-currency="$" />
                         <div class="price-range__info d-flex align-items-center mt-2">
-                            <div class="me-auto">
-                                <span class="text-secondary">Min Price: </span>
-                                <span class="price-range__min">$250</span>
-                            </div>
-                            <div>
-                                <span class="text-secondary">Max Price: </span>
-                                <span class="price-range__max">$450</span>
-                            </div>
+                            <span class="text-secondary">Price Range: </span>
+                            <span class="price-range__min">$1 </span>
+                            <span class="price-range__max">$500</span>
                         </div>
                     </div>
                 </div>
@@ -236,8 +186,10 @@
                                 <div class="slideshow-text container p-3 p-xl-5">
                                     <h2 class="text-uppercase section-title fw-normal mb-3 animate animate_fade animate_btt animate_delay-2">
                                         Women's <br /><strong>ACCESSORIES</strong></h2>
-                                    <p class="mb-0 animate animate_fade animate_btt animate_delay-5">Accessories are the best way to
-                                        update your look. Add a title edge with new styles and new colors, or go for timeless pieces.</h6>
+                                    <p class="mb-0 animate animate_fade animate_btt animate_delay-5">Accessories are the
+                                        best way to
+                                        update your look. Add a title edge with new styles and new colors, or go for
+                                        timeless pieces.</h6>
                                 </div>
                             </div>
                             <div class="slide-split_media position-relative">
@@ -254,8 +206,10 @@
                                 <div class="slideshow-text container p-3 p-xl-5">
                                     <h2 class="text-uppercase section-title fw-normal mb-3 animate animate_fade animate_btt animate_delay-2">
                                         Women's <br /><strong>ACCESSORIES</strong></h2>
-                                    <p class="mb-0 animate animate_fade animate_btt animate_delay-5">Accessories are the best way to
-                                        update your look. Add a title edge with new styles and new colors, or go for timeless pieces.</h6>
+                                    <p class="mb-0 animate animate_fade animate_btt animate_delay-5">Accessories are the
+                                        best way to
+                                        update your look. Add a title edge with new styles and new colors, or go for
+                                        timeless pieces.</h6>
                                 </div>
                             </div>
                             <div class="slide-split_media position-relative">
@@ -272,8 +226,10 @@
                                 <div class="slideshow-text container p-3 p-xl-5">
                                     <h2 class="text-uppercase section-title fw-normal mb-3 animate animate_fade animate_btt animate_delay-2">
                                         Women's <br /><strong>ACCESSORIES</strong></h2>
-                                    <p class="mb-0 animate animate_fade animate_btt animate_delay-5">Accessories are the best way to
-                                        update your look. Add a title edge with new styles and new colors, or go for timeless pieces.</h6>
+                                    <p class="mb-0 animate animate_fade animate_btt animate_delay-5">Accessories are the
+                                        best way to
+                                        update your look. Add a title edge with new styles and new colors, or go for
+                                        timeless pieces.</h6>
                                 </div>
                             </div>
                             <div class="slide-split_media position-relative">
@@ -286,7 +242,8 @@
                 </div>
 
                 <div class="container p-3 p-xl-5">
-                    <div class="slideshow-pagination d-flex align-items-center position-absolute bottom-0 mb-4 pb-xl-2"></div>
+                    <div class="slideshow-pagination d-flex align-items-center position-absolute bottom-0 mb-4 pb-xl-2">
+                    </div>
 
                 </div>
             </div>
@@ -375,7 +332,8 @@
                                     </svg></span>
                             </div>
                             @if(Cart::instance('cart')->content()->where('id',$product->id)->count()>0)
-                            <a href="{{route('cart.index')}}" class="pc__atc btn anim_appear-bottom btn position-absolute border-0 text-uppercase fw-medium btn-warning">Go to Cart</a><br>
+                            <a href="{{route('cart.index')}}" class="pc__atc btn anim_appear-bottom btn position-absolute border-0 text-uppercase fw-medium btn-warning">Go
+                                to Cart</a><br>
                             @else
                             <form name="addtocart-form" action="{{route('cart.add')}}" method="post">
                                 @csrf
@@ -390,7 +348,8 @@
 
                         <div class="pc__info position-relative">
                             <p class="pc__category">{{ $product->category->name }}</p>
-                            <h6 class="pc__title"><a href="{{ route('shop.product_details', ['product_slug' => $product->slug]) }}">{{ $product->name }}</a></h6>
+                            <h6 class="pc__title"><a href="{{ route('shop.product_details', ['product_slug' => $product->slug]) }}">{{ $product->name }}</a>
+                            </h6>
                             <div class="product-card__price d-flex">
                                 <span class="money price">
                                     @if ($product->sale_price)
@@ -444,7 +403,12 @@
     <input type="hidden" name="page" value="{{ $products->currentPage() }}">
     <input type="hidden" name="size" id="size" value="{{ $size }}">
     <input type="hidden" name="order" id="order" value="{{ $order }}">
+    <input type="hidden" name="brands" id="hdnbrand" value="{{ $fbrands }}">
+    <input type="hidden" name="categories" id="hdncategory" value="{{ $fcategories }}">
+    <input type="hidden" name="min_price" id="min-price" value="{{ request('min_price') }}">
+    <input type="hidden" name="max_price" id="max-price" value="{{ request('max_price') }}">
 </form>
+
 @endsection
 
 @push('scripts')
@@ -459,6 +423,38 @@
             $('#order').val($(this).val());
             $('#formfilter').submit();
         });
+
+        $('input[name="brands[]"]').on('change', function() {
+            let brandIds = [];
+            $('input[name="brands[]"]:checked').each(function() {
+                brandIds.push($(this).val());
+            });
+            $('#hdnbrand').val(brandIds.join(','));
+            $('#formfilter').submit();
+        });
+
+        $('.chk-category').on('change', function() {
+            let selectedCategories = [];
+            $('.chk-category:checked').each(function() {
+                selectedCategories.push($(this).val());
+            });
+            $('#hdncategory').val(selectedCategories.join(','));
+            $('#formfilter').submit();
+        });
+
+
+        // Initialize price range slider
+        $('.price-range-slider').slider({
+            formatter: function(value) {
+                return 'Current value: ' + value;
+            }
+        }).on('change', function() {
+            let values = $(this).data('slider').getValue();
+            $('#min-price').val(values[0]);
+            $('#max-price').val(values[1]);
+            $('#formfilter').submit();
+        });
+
     });
 </script>
 @endpush

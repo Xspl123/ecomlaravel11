@@ -2,17 +2,30 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Brand;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Shop;
+use Illuminate\Support\Facades\DB;
+
 
 class ShopController extends Controller
 {
     public function index(Request $request)
     {
-        $size = $request->query('size') ? $request->query('size') : 10;
-        $order = $request->query('order') ? $request->query('order') : '-1';
+        // Enable query logging for debugging
+        DB::enableQueryLog();
 
+        // Retrieve query parameters with default values
+        $size = $request->query('size', 10);
+        $order = $request->query('order', '-1');
+        $fbrands = $request->input('brands', '');
+        $fcategories = $request->input('categories', '');
+        $minPrice = $request->input('min_price', null);
+        $maxPrice = $request->input('max_price', null);
+
+        // Determine the column and order for sorting
         $o_column = '';
         $o_order = '';
 
@@ -27,7 +40,7 @@ class ShopController extends Controller
                 break;
             case '3':
                 $o_column = 'sale_price';
-                $o_order = 'ASC'; // Price, low to hig h
+                $o_order = 'ASC'; // Price, low to high
                 break;
             case '4':
                 $o_column = 'sale_price';
@@ -40,11 +53,31 @@ class ShopController extends Controller
                 break;
         }
 
-        $products = Product::orderBy($o_column, $o_order)->paginate($size);
-        return view('shop', compact('products', 'size', 'order'));
+        // Fetch brands and categories for filtering options
+        $brands = Brand::orderBy('name', 'ASC')->get();
+        $categories = Category::orderBy('name', 'ASC')->get();
+
+        // Build the query for products with filters
+        $products = Product::where(function($query) use ($fbrands, $fcategories, $minPrice, $maxPrice) {
+            if (!empty($fbrands)) {
+                $query->whereIn('brand_id', explode(',', $fbrands));
+            }
+            if (!empty($fcategories)) {
+                $query->whereIn('category_id', explode(',', $fcategories));
+            }
+            if (!is_null($minPrice)) {
+                $query->where('sale_price', '>=', $minPrice);
+            }
+            if (!is_null($maxPrice)) {
+                $query->where('sale_price', '<=', $maxPrice);
+            }
+        })
+        ->orderBy($o_column, $o_order)
+        ->paginate($size);
+
+        // Return the view with the required data
+        return view('shop', compact('products', 'size', 'order', 'brands', 'fbrands', 'categories', 'fcategories', 'minPrice', 'maxPrice'));
     }
-
-
 
     public function product_details($product_slug)
     {
