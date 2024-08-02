@@ -2,14 +2,19 @@
 
 @section('content')
 <style>
-    .price-range__info {
-        white-space: nowrap;
-        /* Prevents line breaks within the span elements */
+    /* .brand-list li, .category-list li{
+        line-height: 40px;
     }
-
-    .price-range__info span {
-        margin-right: 0.5rem;
-        /* Adjust spacing as needed */
+    .chk-brand, .category-list li .chk-category{
+        width: 1rem;
+        height: 1rem;
+        color: #b1d6e8;
+        border: 0.125 rem solid currentColor;
+        border-radius: 0;
+        margin-right: 0.75rem;
+    } */
+    .filled-heart{
+      color: orange;
     }
 </style>
 <main class="pt-90">
@@ -154,11 +159,16 @@
                         </button>
                     </h5>
                     <div id="accordion-filter-price" class="accordion-collapse collapse show border-0" aria-labelledby="accordion-heading-price" data-bs-parent="#price-filters">
-                        <input class="price-range-slider" type="text" data-slider-min="1" data-slider-max="500" data-slider-step="5" data-slider-value="[{{ $minPrice }}, {{ $maxPrice }}]" data-currency="$" />
+                        <input class="price-range-slider" type="text" name="price_range" value="" data-slider-min="1" data-slider-max="500" data-slider-step="5" data-slider-value="[{{ $minPrice }}, {{ $maxPrice }}]" data-currency="$" />
                         <div class="price-range__info d-flex align-items-center mt-2">
-                            <span class="text-secondary">Price Range: </span>
-                            <span class="price-range__min">$1 </span>
-                            <span class="price-range__max">$500</span>
+                            <div class="me-auto">
+                                <span class="text-secondary">Min Price: </span>
+                                <span class="price-range__min">${{ $minPrice }}</span>
+                            </div>
+                            <div>
+                                <span class="text-secondary">Max Price: </span>
+                                <span class="price-range__max">${{ $maxPrice }}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -379,12 +389,26 @@
                                 </div>
                                 <span class="reviews-note text-lowercase text-secondary ms-1">8k+ reviews</span>
                             </div>
-
-                            <button class="pc__btn-wl position-absolute top-0 end-0 bg-transparent border-0 js-add-wishlist" title="Add To Wishlist">
+                            @if (Cart::instance('wishlist')->count() > 0)
+                            <button class="pc__btn-wl position-absolute top-0 end-0 bg-transparent border-0 js-add-wishlist filled-heart" title="Add To Wishlist">
                                 <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <use href="#icon_heart" />
+                                    <use href="#icon_heart" class="wishlist-icon" />
                                 </svg>
                             </button>
+                            @else
+                            <form action="{{ route('wishlist.add') }}" method="post">
+                                @csrf
+                                <input type="hidden" name="id" value="{{ $product->id }}">
+                                <input type="hidden" name="name" value="{{ $product->name }}">
+                                <input type="hidden" name="price" value="{{ $product->sale_price == '' ? $product->regular_price : $product->sale_price }}">
+                                <input type="hidden" name="quantity" value="1">
+                                <button class="pc__btn-wl position-absolute top-0 end-0 bg-transparent border-0 js-add-wishlist" title="Add To Wishlist">
+                                    <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <use href="#icon_heart" class="wishlist-icon" />
+                                    </svg>
+                                </button>
+                            </form>
+                            @endif
                         </div>
                     </div>
                 </div>
