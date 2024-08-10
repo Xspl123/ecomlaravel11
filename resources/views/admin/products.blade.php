@@ -94,37 +94,38 @@
                                     </a>
                                     <!-- Delete form -->
                                     <form class="delete-form" action="{{ route('admin.products.destroy', $product->id) }}" method="POST" style="display:inline;">
-            @csrf
-            @method('DELETE')
-            <button type="submit" class="item text-danger delete" style="padding: 10px 0 0 0;">
-                <i class="icon-trash-2"></i>
-            </button>
-        </form>
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="item text-danger delete" style="padding: 10px 0 0 0;">
+                                            <i class="icon-trash-2"></i>
+                                        </button>
+                                    </form>
 
                                     <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        document.querySelectorAll('.delete-form').forEach(form => {
-            form.addEventListener('submit', function (event) {
-                event.preventDefault(); // Prevent the default form submission
+                                        document.addEventListener('DOMContentLoaded', function() {
+                                            document.querySelectorAll('.delete-form').forEach(form => {
+                                                form.addEventListener('submit', function(event) {
+                                                    event.preventDefault(); // Prevent the default form submission
 
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: "You won't be able to revert this!",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Yes, delete it!',
-                    cancelButtonText: 'Cancel'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        this.submit(); // Submit the form if confirmed
-                    }
-                });
-            });
-        });
-    });
-</script>
+                                                    Swal.fire({
+                                                        title: 'Are you sure?'
+                                                        , text: "You won't be able to revert this!"
+                                                        , icon: 'warning'
+                                                        , showCancelButton: true
+                                                        , confirmButtonColor: '#3085d6'
+                                                        , cancelButtonColor: '#d33'
+                                                        , confirmButtonText: 'Yes, delete it!'
+                                                        , cancelButtonText: 'Cancel'
+                                                    }).then((result) => {
+                                                        if (result.isConfirmed) {
+                                                            this.submit();
+                                                        }
+                                                    });
+                                                });
+                                            });
+                                        });
+
+                                    </script>
 
                                 </div>
                             </td>

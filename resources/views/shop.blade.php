@@ -163,11 +163,11 @@
                         <div class="price-range__info d-flex align-items-center mt-2">
                             <div class="me-auto">
                                 <span class="text-secondary">Min Price: </span>
-                                <span class="price-range__min">${{ $minPrice }}</span>
+                                <span class="price-range__min">₹{{ $minPrice }}</span>
                             </div>
                             <div>
                                 <span class="text-secondary">Max Price: </span>
-                                <span class="price-range__max">${{ $maxPrice }}</span>
+                                <span class="price-range__max">₹{{ $maxPrice }}</span>
                             </div>
                         </div>
                     </div>
@@ -363,9 +363,9 @@
                             <div class="product-card__price d-flex">
                                 <span class="money price">
                                     @if ($product->sale_price)
-                                    <s>${{ $product->regulal_price }}</s>{{ $product->sale_price }}
+                                    <s>₹{{ $product->regulal_price }}</s>{{ $product->sale_price }}
                                     @else
-                                    ${{ $product->regulal_price }}
+                                    ₹{{ $product->regulal_price }}
                                     @endif
                                 </span>
                             </div>

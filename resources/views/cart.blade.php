@@ -62,7 +62,7 @@
                                 </div>
                             </td>
                             <td>
-                                <span class="shopping-cart__product-price">${{$item->price}}</span>
+                                <span class="shopping-cart__product-price">₹{{$item->price}}</span>
                             </td>
                             <td>
                                 <div class="qty-control position-relative">
@@ -82,10 +82,10 @@
                                 </div>
                             </td>
                             <td>
-                                <span class="shopping-cart__subtotal">${{ $item->subtotal() }}</span>
+                                <span class="shopping-cart__subtotal">₹{{ $item->subtotal() }}</span>
                             </td>
                             <td>
-                                <form action="{{ route('cart.remove', $item->rowId) }}" method="POST" style="display: inline;">
+                                <form action="{{ route('cart.remove',$item->rowId) }}" method="POST" style="display: inline;">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="remove-cart" style="background: none; border: none; padding: 0;">
@@ -101,16 +101,24 @@
                     </tbody>
                 </table>
                 <div class="cart-table-footer">
-                    <form action="#" class="position-relative bg-body">
-                        <input class="form-control" type="text" name="coupon_code" placeholder="Coupon Code">
+                    <form action="{{ route('cart.apply_coupon') }}" method="POST" class="position-relative bg-body">
+                        @csrf
+                        <input class="form-control" type="text" name="coupon_code" placeholder="Coupon Code" value="@if(Session::has('coupan')) {{ Session::get('coupan')['code'] }} Applied! @endif">
                         <input class="btn-link fw-medium position-absolute top-0 end-0 h-100 px-4" type="submit" value="APPLY COUPON">
                     </form>
+
                     <form action="{{ route('cart.clear') }}" method="POST">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="btn btn-light">Clear CART</button>
                     </form>
-
+                </div>
+                <div>
+                    @if (Session::has('success'))
+                    <p class="alert alert-success">{{ Session::get('success') }}</p>
+                    @elseif(Session::has('error'))
+                    <p class="alert alert-danger">{{ Session::get('error') }}</p>
+                    @endif
                 </div>
             </div>
             <div class="shopping-cart__totals-wrapper">
@@ -121,7 +129,7 @@
                             <tbody>
                                 <tr>
                                     <th>Subtotal</th>
-                                    <td>${{ Cart::instance('cart')->subtotal() }}</td>
+                                    <td>₹{{ Cart::instance('cart')->subtotal() }}</td>
                                 </tr>
                                 <tr>
                                     <th>Shipping</th>
@@ -129,11 +137,11 @@
                                 </tr>
                                 <tr>
                                     <th>VAT</th>
-                                    <td>${{ Cart::instance('cart')->tax() }}</td>
+                                    <td>₹{{ Cart::instance('cart')->tax() }}</td>
                                 </tr>
                                 <tr>
                                     <th>Total</th>
-                                    <td>${{ Cart::instance('cart')->total() }}</td>
+                                    <td>₹{{ Cart::instance('cart')->total() }}</td>
                                 </tr>
                             </tbody>
                         </table>

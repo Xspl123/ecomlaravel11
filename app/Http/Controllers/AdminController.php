@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Brand;
 use App\Models\Category;
+use App\Models\Coupan;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
@@ -444,6 +445,71 @@ class AdminController extends Controller
         // Redirect to the products list with a success message
         return redirect()->route('admin.products')->with('success', 'Product deleted successfully.');
     }
+
+
+    public function coupans(){
+        $coupans = Coupan::orderBy('expiry_date', 'DESC')->paginate(10);
+        return view('admin.coupans', compact('coupans'));
+    }
+
+    public function addCoupon(){
+        return view('admin.coupan-create');
+    }
+
+    public function storeCoupon(Request $request){
+        $request->validate([
+            'code' =>'required|string|max:10|unique:coupans',
+            'type' =>'required',
+            'value'=> 'required|numeric',
+            'cart_value'=> 'required|numeric',
+            'expiry_date' =>'required|date',
+        ]);
+
+        Coupan::create([
+            'code' => $request->input('code'),
+            'type' => $request->input('type'),
+            'value' => $request->input('value'),
+            'cart_value' => $request->input('cart_value'),
+            'expiry_date' => $request->input('expiry_date'),
+        ]);
+
+        return redirect()->route('admin.coupons')->with('success', 'Coupon created successfully.');
+    }
+
+    public function CouponEdit($id){
+        $coupon = Coupan::findOrFail($id);
+        return view('admin.coupan-edit', compact('coupon'));
+    }
+
+
+    public function updateCoupon(Request $request, $id){
+
+        $request->validate([
+            'code' =>'required|string|max:10|unique:coupans,code,'.$id,
+            'type' =>'required',
+            'value'=> 'required|numeric',
+            'cart_value'=> 'required|numeric',
+            'expiry_date' =>'required|date',
+        ]);
+        $coupon = Coupan::findOrFail($id);
+        $coupon->update([
+            'code' => $request->input('code'),
+            'type' => $request->input('type'),
+            'value' => $request->input('value'),
+            'cart_value' => $request->input('cart_value'),
+            'expiry_date' => $request->input('expiry_date'),
+        ]);
+        return redirect()->route('admin.coupons')->with('success', 'Coupon updated successfully.');
+    }
+
+
+    public function CouponDestroy($id){
+
+        $coupon = Coupan::findOrFail($id);
+        $coupon->delete();
+        return redirect()->route('admin.coupons')->with('success', 'Coupon deleted successfully.');
+    }
+
 
 
 }

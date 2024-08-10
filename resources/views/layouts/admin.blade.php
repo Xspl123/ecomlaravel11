@@ -9,6 +9,7 @@
     <link rel="stylesheet" type="text/css" href="{{ asset('css/animate.min.css')}}">
     <link rel="stylesheet" type="text/css" href="{{ asset('css/animation.css')}}">
     <link rel="stylesheet" type="text/css" href="{{ asset('css/bootstrap.css')}}">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" type="text/css" href="{{ asset('css/bootstrap-select.min.css')}}">
     <link rel="stylesheet" type="text/css" href="{{ asset('css/style.css')}}">
     <link rel="stylesheet" href="{{ asset('font/fonts.css')}}">
@@ -133,12 +134,11 @@
                                     </a>
                                 </li>
                                 <li class="menu-item">
-                                    <a href="coupons.html" class="">
+                                    <a href="{{ route('admin.coupons') }}" class="">
                                         <div class="icon"><i class="icon-grid"></i></div>
                                         <div class="text">Coupns</div>
                                     </a>
                                 </li>
-
                                 <li class="menu-item">
                                     <a href="users.html" class="">
                                         <div class="icon"><i class="icon-user"></i></div>
@@ -167,7 +167,6 @@
                     </div>
                 </div>
                 <div class="section-content-right">
-
                     <div class="header-dashboard">
                         <div class="wrap">
                             <div class="header-left">
