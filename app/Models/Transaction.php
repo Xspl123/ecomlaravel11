@@ -13,4 +13,6 @@ class Transaction extends Model
     {
         return $this->belongsTo(Order::class);
     }
+
+    
 }

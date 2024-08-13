@@ -2,7 +2,7 @@
 
 @section('content')
 <style>
-    /* .brand-list li, .category-list li{
+     .brand-list li, .category-list li{
         line-height: 40px;
     }
     .chk-brand, .category-list li .chk-category{
@@ -12,7 +12,7 @@
         border: 0.125 rem solid currentColor;
         border-radius: 0;
         margin-right: 0.75rem;
-    } */
+    }
     .filled-heart{
       color: orange;
     }
@@ -204,7 +204,7 @@
                             </div>
                             <div class="slide-split_media position-relative">
                                 <div class="slideshow-bg" style="background-color: #f5e6e0;">
-                                    <img loading="lazy" src="assets/images/shop/shop_banner3.jpg" width="630" height="450" alt="Women's accessories" class="slideshow-bg__img object-fit-cover" />
+                                    <img loading="lazy" src="{{ asset('assets/images/shop/shop_banner3.jpg') }}" width="630" height="450" alt="Women's accessories" class="slideshow-bg__img object-fit-cover" />
                                 </div>
                             </div>
                         </div>
@@ -224,7 +224,7 @@
                             </div>
                             <div class="slide-split_media position-relative">
                                 <div class="slideshow-bg" style="background-color: #f5e6e0;">
-                                    <img loading="lazy" src="assets/images/shop/shop_banner3.jpg" width="630" height="450" alt="Women's accessories" class="slideshow-bg__img object-fit-cover" />
+                                    <img loading="lazy" src={{ asset('assets/images/shop/shop_banner3.jpg') }}" width="630" height="450" alt="Women's accessories" class="slideshow-bg__img object-fit-cover" />
                                 </div>
                             </div>
                         </div>
@@ -244,7 +244,7 @@
                             </div>
                             <div class="slide-split_media position-relative">
                                 <div class="slideshow-bg" style="background-color: #f5e6e0;">
-                                    <img loading="lazy" src="assets/images/shop/shop_banner3.jpg" width="630" height="450" alt="Women's accessories" class="slideshow-bg__img object-fit-cover" />
+                                    <img loading="lazy" src={{ asset('assets/images/shop/shop_banner3.jpg') }}" width="630" height="450" alt="Women's accessories" class="slideshow-bg__img object-fit-cover" />
                                 </div>
                             </div>
                         </div>

@@ -53,7 +53,7 @@
                 </div>
                 <div class="order-info__item">
                     <label>Payment Method</label> <!-- Fixed Typo -->
-                    <span>{{ $order->transaction->mode }}</span>
+                    <span class="text-center">{{ $order->transaction->mode }}</span>
                 </div>
             </div>
             <div class="checkout__totals-wrapper">
@@ -72,7 +72,7 @@
                                 <td>
                                     {{ $item->product->name }} x {{ $item->quantity }} <!-- Access product name -->
                                 </td>
-                                <td>
+                                <td class="text-right">
                                     ${{ $item->price }}
                                 </td>
                             </tr>
@@ -83,24 +83,24 @@
                         <tbody>
                             <tr>
                                 <th>SUBTOTAL</th>
-                                <td>${{ $order->subtotal }}</td>
+                                <td class="text-right">${{ $order->subtotal }}</td>
                             </tr>
 
                              <tr>
                                 <th>Discount</th>
-                                <td>${{ $order->discount }}</td>
+                                <td class="text-right">${{ $order->discount }}</td>
                             </tr>
                             <tr>
                                 <th>SHIPPING</th>
-                                <td>Free shipping</td>
+                                <td class="text-right">Free shipping</td>
                             </tr>
                             <tr>
                                 <th>VAT</th>
-                                <td>${{ $order->tax }}</td>
+                                <td class="text-right">${{ $order->tax }}</td>
                             </tr>
                             <tr>
                                 <th>TOTAL</th>
-                                <td>${{ $order->total }}</td>
+                                <td class="text-right">${{ $order->total }}</td>
                             </tr>
                         </tbody>
                     </table>

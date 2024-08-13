@@ -195,7 +195,7 @@
 
             <div class="logo">
                 <a href="{{ route('home.index') }}">
-                    <h4>Abhishek</h4>
+                    <h4>TechAbhijay</h4>
                     {{-- <img src="{{ asset('assets/images/logo.png') }}" alt="Uomo" class="logo__image d-block" /> --}}
                 </a>
             </div>
@@ -306,8 +306,7 @@
             <div class="header-desk header-desk_type_1">
                 <div class="logo">
                     <a href="{{ route('home.index') }}">
-                        <h4>Abhishek</h4>
-                        {{-- <img src="{{ asset('assets/images/logo.png') }}" alt="Uomo" class="logo__image d-block" /> --}}
+                        <img src="{{ asset('assets/images/logo1.png') }}" alt="Uomo" class="logo__image d-block" />
                     </a>
                 </div>
 
@@ -426,13 +425,12 @@
                 <div class="footer-column footer-store-info col-12 mb-4 mb-lg-0">
                     <div class="logo">
                         <a href="{{ route('home.index') }}">
-                            <h4>Abhishek</h4>
-                            {{-- <img src="{{asset('assets/images/logo.png')}}" alt="SurfsideMedia" class="logo__image d-block" /> --}}
+                            <img src="{{asset('assets/images/logo1.png')}}" alt="SurfsideMedia" class="logo__image d-block" />
                         </a>
                     </div>
-                    <p class="footer-address">123 Beach Avenue, Surfside City, CA 00000</p>
-                    <p class="m-0"><strong class="fw-medium">contact@surfsidemedia.in</strong></p>
-                    <p><strong class="fw-medium">+1 000-000-0000</strong></p>
+                    <p class="footer-address">B-86 Sec-60 Noida City, UP 201301</p>
+                    <p class="m-0"><strong class="fw-medium">contact@techabhijay.com</strong></p>
+                    <p><strong class="fw-medium">+91 798-274-8233</strong></p>
 
                     <ul class="social-links list-unstyled d-flex flex-wrap mb-0">
                         <li>

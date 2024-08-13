@@ -5,19 +5,158 @@ namespace App\Http\Controllers;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Coupan;
+use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\Transaction;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Schema;
+
 
 
 class AdminController extends Controller
 {
+    // public function index()
+    // {
+
+    //     $totalOrders = Order::count();
+    //     $totalAmount = Order::sum('total');
+
+    //     $pendingOrders = Order::where('status', 'pending')->count();
+    //     $pendingOrdersAmount = Order::where('status', 'pending')->sum('total');
+
+    //     $deliveredOrders = Order::where('status', 'delivered')->count();
+    //     $deliveredOrdersAmount = Order::where('status', 'delivered')->sum('total');
+
+    //     $canceledOrders = Order::where('status', 'canceled')->count();
+    //     $canceledOrdersAmount = Order::where('status', 'canceled')->sum('total');
+    //     $recentOrders = Order::orderBy('created_at', 'DESC')->limit(5)->get();
+
+    //     // Define date ranges
+    //     $thisWeekStart = Carbon::now()->startOfWeek();
+    //     $thisWeekEnd = Carbon::now()->endOfWeek();
+    //     $lastWeekStart = Carbon::now()->subWeek()->startOfWeek();
+    //     $lastWeekEnd = Carbon::now()->subWeek()->endOfWeek();
+
+    //     // Fetch data for this week
+    //     $earningsThisWeek = Order::whereBetween('created_at', [$thisWeekStart, $thisWeekEnd])->sum('total');
+    //     $totalOrdersThisWeek = Order::whereBetween('created_at', [$thisWeekStart, $thisWeekEnd])->count();
+
+    //     // Fetch data for last week
+    //     $earningsLastWeek = Order::whereBetween('created_at', [$lastWeekStart, $lastWeekEnd])->sum('total');
+    //     $totalOrdersLastWeek = Order::whereBetween('created_at', [$lastWeekStart, $lastWeekEnd])->count();
+
+    //     // Calculate percentage change
+    //     $revenueChange = $earningsLastWeek == 0 ? 0 : (($earningsThisWeek - $earningsLastWeek) / $earningsLastWeek) * 100;
+    //     $orderChange = $totalOrdersLastWeek == 0 ? 0 : (($totalOrdersThisWeek - $totalOrdersLastWeek) / $totalOrdersLastWeek) * 100;
+
+
+
+    //     return view('admin.index', compact(
+    //         'totalOrders',
+    //         'totalAmount',
+    //         'pendingOrders',
+    //         'pendingOrdersAmount',
+    //         'deliveredOrders',
+    //         'deliveredOrdersAmount',
+    //         'canceledOrders',
+    //         'canceledOrdersAmount',
+    //         'recentOrders',
+    //         'earningsThisWeek',
+    //         'earningsLastWeek',
+    //         'totalOrdersThisWeek',
+    //         'totalOrdersLastWeek',
+    //         'revenueChange',
+    //         'orderChange'
+    //     ));
+    // }
+
     public function index()
     {
-        return view('admin.index');
+        // Order statistics
+        $totalOrders = Order::count();
+        $totalAmount = Order::sum('total');
+
+        $pendingOrders = Order::where('status', 'pending')->count();
+        $pendingOrdersAmount = Order::where('status', 'pending')->sum('total');
+
+        $deliveredOrders = Order::where('status', 'delivered')->count();
+        $deliveredOrdersAmount = Order::where('status', 'delivered')->sum('total');
+
+        $canceledOrders = Order::where('status', 'canceled')->count();
+        $canceledOrdersAmount = Order::where('status', 'canceled')->sum('total');
+        $recentOrders = Order::orderBy('created_at', 'DESC')->limit(5)->get();
+
+        // Define date ranges
+        $thisWeekStart = Carbon::now()->startOfWeek();
+        $thisWeekEnd = Carbon::now()->endOfWeek();
+        $lastWeekStart = Carbon::now()->subWeek()->startOfWeek();
+        $lastWeekEnd = Carbon::now()->subWeek()->endOfWeek();
+
+        // Fetch data for this week
+        $earningsThisWeek = Order::whereBetween('created_at', [$thisWeekStart, $thisWeekEnd])->sum('total');
+        $totalOrdersThisWeek = Order::whereBetween('created_at', [$thisWeekStart, $thisWeekEnd])->count();
+
+        // Fetch data for last week
+        $earningsLastWeek = Order::whereBetween('created_at', [$lastWeekStart, $lastWeekEnd])->sum('total');
+        $totalOrdersLastWeek = Order::whereBetween('created_at', [$lastWeekStart, $lastWeekEnd])->count();
+
+        // Calculate percentage change
+        $revenueChange = $earningsLastWeek == 0 ? 0 : (($earningsThisWeek - $earningsLastWeek) / $earningsLastWeek) * 100;
+        $orderChange = $totalOrdersLastWeek == 0 ? 0 : (($totalOrdersThisWeek - $totalOrdersLastWeek) / $totalOrdersLastWeek) * 100;
+
+        // Data for chart (monthly)
+        $months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        $totalMonthlyData = $this->getMonthlyData('total');
+        $pendingMonthlyData = $this->getMonthlyData('pending');
+        $deliveredMonthlyData = $this->getMonthlyData('delivered');
+        $canceledMonthlyData = $this->getMonthlyData('canceled');
+
+        return view('admin.index', compact(
+            'totalOrders',
+            'totalAmount',
+            'pendingOrders',
+            'pendingOrdersAmount',
+            'deliveredOrders',
+            'deliveredOrdersAmount',
+            'canceledOrders',
+            'canceledOrdersAmount',
+            'recentOrders',
+            'earningsThisWeek',
+            'earningsLastWeek',
+            'totalOrdersThisWeek',
+            'totalOrdersLastWeek',
+            'revenueChange',
+            'orderChange',
+            'months',
+            'totalMonthlyData',
+            'pendingMonthlyData',
+            'deliveredMonthlyData',
+            'canceledMonthlyData'
+        ));
     }
+
+    private function getMonthlyData($status)
+    {
+        $data = [];
+        foreach (range(1, 12) as $month) {
+            $start = Carbon::now()->month($month)->startOfMonth();
+            $end = Carbon::now()->month($month)->endOfMonth();
+            if ($status === 'total') {
+                $data[] = Order::whereBetween('created_at', [$start, $end])->sum('total');
+            } else {
+                $data[] = Order::where('status', $status)
+                    ->whereBetween('created_at', [$start, $end])
+                    ->sum('total');
+            }
+        }
+        return $data;
+    }
+
 
     public function brands()
     {
@@ -232,7 +371,7 @@ class AdminController extends Controller
 
     public function ProductsStore(Request $request)
     {
-       // dd($request);
+        // dd($request);
         // Validate the request
         $request->validate([
             'name' => 'required|string|max:100',
@@ -289,7 +428,6 @@ class AdminController extends Controller
                 // Store file
                 $galleryImage->move($galleryPath, $galleryImageName);
                 $galleryNames[] = $galleryImageName;
-
             }
         }
 
@@ -314,12 +452,14 @@ class AdminController extends Controller
         return redirect()->route('admin.products')->with('success', 'Product created successfully.');
     }
 
-    public function ProductsShow($id){
+    public function ProductsShow($id)
+    {
         $product = Product::findOrFail($id);
         return view('admin.product-show', compact('product'));
     }
 
-    public function ProductsEdit($id){
+    public function ProductsEdit($id)
+    {
         $product = Product::findOrFail($id);
         $brands = Brand::orderBy('created_at', 'desc')->pluck('name', 'id');
         $categories = Category::orderBy('created_at', 'desc')->pluck('name', 'id');
@@ -447,22 +587,25 @@ class AdminController extends Controller
     }
 
 
-    public function coupans(){
+    public function coupans()
+    {
         $coupans = Coupan::orderBy('expiry_date', 'DESC')->paginate(10);
         return view('admin.coupans', compact('coupans'));
     }
 
-    public function addCoupon(){
+    public function addCoupon()
+    {
         return view('admin.coupan-create');
     }
 
-    public function storeCoupon(Request $request){
+    public function storeCoupon(Request $request)
+    {
         $request->validate([
-            'code' =>'required|string|max:10|unique:coupans',
-            'type' =>'required',
-            'value'=> 'required|numeric',
-            'cart_value'=> 'required|numeric',
-            'expiry_date' =>'required|date',
+            'code' => 'required|string|max:10|unique:coupans',
+            'type' => 'required',
+            'value' => 'required|numeric',
+            'cart_value' => 'required|numeric',
+            'expiry_date' => 'required|date',
         ]);
 
         Coupan::create([
@@ -476,20 +619,22 @@ class AdminController extends Controller
         return redirect()->route('admin.coupons')->with('success', 'Coupon created successfully.');
     }
 
-    public function CouponEdit($id){
+    public function CouponEdit($id)
+    {
         $coupon = Coupan::findOrFail($id);
         return view('admin.coupan-edit', compact('coupon'));
     }
 
 
-    public function updateCoupon(Request $request, $id){
+    public function updateCoupon(Request $request, $id)
+    {
 
         $request->validate([
-            'code' =>'required|string|max:10|unique:coupans,code,'.$id,
-            'type' =>'required',
-            'value'=> 'required|numeric',
-            'cart_value'=> 'required|numeric',
-            'expiry_date' =>'required|date',
+            'code' => 'required|string|max:10|unique:coupans,code,' . $id,
+            'type' => 'required',
+            'value' => 'required|numeric',
+            'cart_value' => 'required|numeric',
+            'expiry_date' => 'required|date',
         ]);
         $coupon = Coupan::findOrFail($id);
         $coupon->update([
@@ -503,7 +648,8 @@ class AdminController extends Controller
     }
 
 
-    public function CouponDestroy($id){
+    public function CouponDestroy($id)
+    {
 
         $coupon = Coupan::findOrFail($id);
         $coupon->delete();
@@ -511,5 +657,32 @@ class AdminController extends Controller
     }
 
 
+    public function orders(Request $request)
+    {
+        $query = Order::query();
+        $search = $request->input('name');
 
+        if (!empty($search)) {
+            $columns = Schema::getColumnListing('orders');
+            $query->where(function ($q) use ($columns, $search) {
+                foreach ($columns as $column) {
+                    $q->orWhere($column, 'like', "%{$search}%");
+                }
+            });
+        }
+
+        $orders = $query->orderBy('created_at', 'DESC')->paginate(10);
+
+        return view('admin.orders', compact('orders'));
+    }
+
+
+    public function order_details($id){
+
+        $order = Order::where('id',$id)->first();
+        $order_items = OrderItem::where('order_id', $id)->orderBy('id')->paginate(3);
+        $transations = Transaction::where('order_id', $id)->first();
+        //dd($transations);
+        return view('admin.order_details', compact('order', 'order_items','transations'));
+    }
 }

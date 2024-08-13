@@ -84,4 +84,9 @@ Route::middleware(['auth', AuthAdmin::class])->group(function () {
     Route::get('/coupons/edit/{id}', [AdminController::class, 'CouponEdit'])->name('coupons.edit');
     Route::post('/coupons/{id}', [AdminController::class, 'updateCoupon'])->name('coupons.update');
     Route::delete('/coupons/{id}', [AdminController::class, 'CouponDestroy'])->name('coupons.destroy');
+
+    //Orders routes
+    Route::get('admin/orders', [AdminController::class, 'orders'])->name('admin.orders');
+    Route::get('/order-show/{order_id}', [AdminController::class, 'order_details'])->name('admin.order.show');
+    // Route::put('/order-status/{order_id}', [AdminController::class, 'orderStatusUpdate'])->name('admin.order.status');
 });
