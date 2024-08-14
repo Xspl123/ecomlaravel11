@@ -25,7 +25,7 @@
                 <div class="wg-filter flex-grow">
                     <form class="form-search" action="{{ route('admin.orders') }}" method="GET">
                         <fieldset class="name">
-                            <input type="text" placeholder="Search here..." class="" name="name" tabindex="2" value="{{ request('name') }}" >
+                            <input type="text" placeholder="Search here..." class="" name="name" tabindex="2" value="{{ request('name') }}">
                         </fieldset>
                         <div class="button-submit">
                             <button class="" type="submit"><i class="icon-search"></i></button>
@@ -36,6 +36,11 @@
 
             <div class="wg-table table-all-user">
                 <div class="table-responsive">
+                    @if (session('success'))
+                    <div class="alert alert-success">
+                        {{ session('success') }}
+                    </div>
+                    @endif
                     <table class="table table-striped table-bordered">
                         <thead>
                             <tr>

@@ -305,9 +305,9 @@
         <div class="container">
             <div class="header-desk header-desk_type_1">
                 <div class="logo">
-                    <a href="{{ route('home.index') }}">
+                    {{-- <a href="{{ route('home.index') }}">
                         <img src="{{ asset('assets/images/logo1.png') }}" alt="Uomo" class="logo__image d-block" />
-                    </a>
+                    </a> --}}
                 </div>
 
                 <nav class="navigation">
@@ -425,7 +425,7 @@
                 <div class="footer-column footer-store-info col-12 mb-4 mb-lg-0">
                     <div class="logo">
                         <a href="{{ route('home.index') }}">
-                            <img src="{{asset('assets/images/logo1.png')}}" alt="SurfsideMedia" class="logo__image d-block" />
+                            {{-- <img src="{{asset('assets/images/logo1.png')}}" alt="SurfsideMedia" class="logo__image d-block" /> --}}
                         </a>
                     </div>
                     <p class="footer-address">B-86 Sec-60 Noida City, UP 201301</p>

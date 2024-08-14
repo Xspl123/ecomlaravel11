@@ -35,6 +35,11 @@
                 <a class="tf-button style-1 w208" href="{{ route('admin.orders') }}">Back</a>
             </div>
             <div class="table-responsive">
+                @if (session('success'))
+                <div class="alert alert-success">
+                    {{ session('success') }}
+                </div>
+                @endif
                 <table class="table table-striped table-bordered">
                     <tr>
                         <th>Order No</th>
@@ -52,13 +57,16 @@
                         <th>Canceled Date</th>
                         <td>{{$order->canceled_date}}</td>
                     </tr>
-
                     <tr>
                         <th>Order Status</th>
                         <td colspan="5">
                             @if ($order)
                             @if ($order->status == 'ordered')
                             <span class="badge badge-success" style="color: green;">Ordered</span>
+                            @elseif ($order->status == 'delivered')
+                            <span class="badge badge-info" style="color: blue;">Delivered & Approved</span>
+                            @elseif ($order->status == 'canceled')
+                            <span class="badge badge-danger" style="color: red;">Canceled</span>
                             @elseif($order->status == 'declined')
                             <span class="badge badge-danger">Declined</span>
                             @elseif($order->status == 'refunded')
@@ -70,7 +78,6 @@
                             <span class="badge badge-secondary">Order Not Found</span>
                             @endif
                         </td>
-
                     </tr>
                 </table>
             </div>
@@ -83,6 +90,7 @@
                 </div>
             </div>
             <div class="table-responsive">
+
                 <table class="table table-striped table-bordered">
                     <thead>
                         <tr>
@@ -169,9 +177,8 @@
                         <td>{{ $transations->mode }}</td>
                         <th>Status</th>
                         <td>
-
                             @if ($transations->status == 'approved')
-                            <span class="badge badge-success">Approved</span>
+                            <span class="badge badge-success" style="color: blueviolet;">Approved</span>
                             @elseif($transations->status == 'declined')
                             <span class="badge badge-danger">Declined</span>
                             @elseif($transations->status == 'refunded')
@@ -183,6 +190,29 @@
                     </tr>
                 </tbody>
             </table>
+        </div>
+
+        <div class="wg-box mt-5">
+            <h5>Update Order Status</h5>
+            <form action="{{ route('admin.order_status_update', $order->id)}}" method="post">
+                @csrf
+                @method('put')
+                <input type="hidden" name="order_id" value="{{ $order->id }}">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="select">
+                            <select name="order_status" id="order_status" class="form-control">
+                                <option value="orderd" {{ $order->status == 'orderd' ? 'selected' : '' }}>Ordered</option>
+                                <option value="delivered" {{ $order->status == 'delivered' ? 'selected' : '' }}>Delivered</option>
+                                <option value="cancelled" {{ $order->status == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-primary tf button w208">Update Status</button>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
 </div>

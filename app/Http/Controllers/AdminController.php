@@ -685,4 +685,25 @@ class AdminController extends Controller
         //dd($transations);
         return view('admin.order_details', compact('order', 'order_items','transations'));
     }
+
+
+    public function update_order_status(Request $request){
+        $order = Order::find($request->order_id);
+
+        $order->status = $request->input('order_status');
+        if ($request->order_status == 'delivered') {
+           $order->delivered_date = Carbon::now();
+        }
+        elseif ($request->order_status == 'cancelled') {
+            $order->cancelled_date = Carbon::now();
+        }
+        $order->save();
+
+        if ($request->order_status == 'delivered') {
+            $transations = Transaction::where('order_id', $request->order_id)->first();
+            $transations->status = 'approved';
+            $transations->save();
+        }
+        return redirect()->route('admin.order.show',$request->order_id)->with('success', 'Order status updated successfully.');
+    }
 }
