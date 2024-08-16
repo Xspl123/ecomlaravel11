@@ -218,14 +218,14 @@
                     <h5>Shipping Address</h5>
                     <div class="my-account__address-item col-md-6">
                         <div class="my-account__address-item__detail">
-                            <p>Divyansh Kumar</p>
-                            <p>Flat No - 13, R. K. Wing - B</p>
-                            <p>ABC, DEF</p>
-                            <p>GHT, </p>
-                            <p>AAA</p>
-                            <p>000000</p>
+                            <p>{{ $order->name }}</p>
+                            <p>{{ $order->address }}</p>
+                            <p>{{ $order->locality }}</p>
+                            <p>{{ $order->city }}, {{ $order->country }},</p>
+                            <p>{{ $order->landmark }}</p>
+                            <p>{{ $order->zip }}</p>
                             <br>
-                            <p>Mobile : 1234567891</p>
+                            <p>Mobile : {{ $order->phone }}</p>
                         </div>
                     </div>
                 </div>
@@ -260,16 +260,15 @@
                         </table>
                     </div>
                 </div>
-
                 <div class="wg-box mt-5 text-right">
-                    <form action="http://localhost:8000/account-order/cancel-order" method="POST">
-                        <input type="hidden" name="_token" value="3v611ELheIo6fqsgspMOk0eiSZjncEeubOwUa6YT" autocomplete="off">
-                        <input type="hidden" name="_method" value="PUT"> <input type="hidden" name="order_id" value="1">
+                    <form action="{{ route('user.canceled_order', $order->id) }}" method="POST">
+                        @csrf
+                        @method('PUT')
+                        <input type="hidden" name="order_id" value="{{ $order->id }}">
                         <button type="submit" class="btn btn-danger">Cancel Order</button>
                     </form>
                 </div>
             </div>
-
         </div>
     </section>
 </main>

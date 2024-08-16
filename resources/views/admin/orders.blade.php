@@ -1,6 +1,51 @@
 @extends('layouts.admin')
 
 @section('content')
+<style>
+    /* General Badge Styling */
+    .badge {
+        font-size: 0.75rem;
+        /* Adjust font size if necessary */
+        font-weight: 700;
+        /* Make text bold for better visibility */
+        padding: 0.25rem 0.4rem;
+        border-radius: 0.2rem;
+        /* Rounded corners */
+    }
+
+    /* Success Badge */
+    .badge-success {
+        background-color: #28a745;
+        /* Bootstrap green color */
+        color: #fff;
+        /* Ensure text is white */
+    }
+
+    /* Warning Badge */
+    .badge-warning {
+        background-color: #ffc107;
+        /* Bootstrap yellow color */
+        color: #212529;
+        /* Dark text for contrast */
+    }
+
+    /* Danger Badge */
+    .badge-danger {
+        background-color: #dc3545;
+        /* Bootstrap red color */
+        color: #fff;
+        /* Ensure text is white */
+    }
+
+    /* Secondary Badge (for unknown statuses) */
+    .badge-secondary {
+        background-color: #6c757d;
+        /* Bootstrap gray color */
+        color: #fff;
+        /* Ensure text is white */
+    }
+
+</style>
 <div class="main-content-inner">
     <div class="main-content-wrap">
         <div class="flex items-center flex-wrap justify-between gap20 mb-27">
@@ -67,11 +112,18 @@
                                 <td class="text-center">{{ $order->phone }}</td>
                                 <td class="text-center">{{ $order->subtotal }}</td>
                                 <td class="text-center">{{ $order->tax }}</td>
-                                </td>
                                 <td class="text-center">{{ $order->total }}</td>
+                                <td class="text-center">
+                                    @if ($order->status == 'delivered')
+                                    <span class="badge badge-success">Delivered</span>
+                                    @elseif ($order->status == 'cancelled')
+                                    <span class="badge badge-warning">Cancelled</span>
+                                    @elseif ($order->status == 'ordered')
+                                    <span class="badge badge-danger">Ordered</span>
+                                    @else
+                                    <span class="badge badge-secondary">{{ ucfirst($order->status) }}</span>
+                                    @endif
                                 </td>
-
-                                <td class="text-center">{{ $order->status }}</td>
                                 <td class="text-center">{{ $order->created_at }}</td>
                                 <td class="text-center">{{ $order->orderItems->count() }}</td>
                                 <td class="text-center">{{ $order->delivered_date }}</td>

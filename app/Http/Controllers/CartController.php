@@ -185,10 +185,10 @@ class CartController extends Controller
         // Create new order
         $order = new Order();
         $order->user_id = $user_id;
-        $order->subtotal = Session::get('checkout')['subtotal'] ?? 0;
-        $order->discount = Session::get('checkout')['discount'] ?? 0;
-        $order->tax = Session::get('checkout')['tax'] ?? 0;
-        $order->total = Session::get('checkout')['total'] ?? 0;
+        $order->subtotal = $this->parseDecimal(Session::get('checkout')['subtotal'] ?? 0);
+        $order->discount = $this->parseDecimal(Session::get('checkout')['discount'] ?? 0);
+        $order->tax = $this->parseDecimal(Session::get('checkout')['tax'] ?? 0);
+        $order->total = $this->parseDecimal(Session::get('checkout')['total'] ?? 0);
         $order->name = $address->name;
         $order->phone = $address->phone;
         $order->locality = $address->locality;
@@ -199,6 +199,7 @@ class CartController extends Controller
         $order->landmark = $address->landmark;
         $order->zip = $address->zip;
         $order->save();
+
 
         Log::info('New Order Created: ' . json_encode($order));
 
@@ -243,43 +244,47 @@ class CartController extends Controller
 
         return redirect()->route('cart.order_confirmation');
     }
-
-
-
-public function setAmountForCheckout()
-{
-    if (!Cart::instance('cart')->content()->count() > 0) {
-        Session::forget('checkout');
-        return;
+    private function parseDecimal($value)
+    {
+        // Remove any commas and convert to a float
+        return (float)str_replace(',', '', $value);
     }
 
-    if (Session::has('coupan')) {
-        Session::put('checkout', [
-            'discount' => Session::get('discounts')['discount'],
-            'subtotal' => Session::get('discounts')['subtotal'],
-            'tax' => Session::get('discounts')['tax'],
-            'total' => Session::get('discounts')['total'],
-        ]);
-    } else {
-        Session::put('checkout', [
-            'discount' => 0,
-            'subtotal' => Cart::instance('cart')->subtotal(),
-            'tax' => Cart::instance('cart')->tax(),
-            'total' => Cart::instance('cart')->total(),
-        ]);
+
+
+    public function setAmountForCheckout()
+    {
+        if (!Cart::instance('cart')->content()->count() > 0) {
+            Session::forget('checkout');
+            return;
+        }
+
+        if (Session::has('coupan')) {
+            Session::put('checkout', [
+                'discount' => Session::get('discounts')['discount'],
+                'subtotal' => Session::get('discounts')['subtotal'],
+                'tax' => Session::get('discounts')['tax'],
+                'total' => Session::get('discounts')['total'],
+            ]);
+        } else {
+            Session::put('checkout', [
+                'discount' => 0,
+                'subtotal' => Cart::instance('cart')->subtotal(),
+                'tax' => Cart::instance('cart')->tax(),
+                'total' => Cart::instance('cart')->total(),
+            ]);
+        }
     }
-}
 
-public function order_confirmation()
-{
+    public function order_confirmation()
+    {
 
-    if (Session::has('order_id')) {
-        $id = Session::get('order_id');
-        $order = Order::find($id);
-        return view('order_confirmation',compact('order'));
+        if (Session::has('order_id')) {
+            $id = Session::get('order_id');
+            $order = Order::find($id);
+            return view('order_confirmation', compact('order'));
+        }
+
+        return redirect()->route('cart.index');
     }
-
-    return redirect()->route('cart.index');
-}
-
 }
