@@ -8,13 +8,16 @@ use App\Models\Coupan;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\Slide;
 use App\Models\Transaction;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Schema;
+use Intervention\Image\Facades\Image;
 
 
 
@@ -77,68 +80,68 @@ class AdminController extends Controller
 
     public function index()
     {
-        // Order statistics
-        $totalOrders = Order::count();
-        $totalAmount = Order::sum('total');
+        // Fetch the most recent 3 orders
+        $orders = Order::orderBy('created_at', 'DESC')->take(3)->get();
 
-        $pendingOrders = Order::where('status', 'pending')->count();
-        $pendingOrdersAmount = Order::where('status', 'pending')->sum('total');
+        // Aggregate data for dashboard
+        $dashBoardDatas = DB::select("SELECT
+                                SUM(total) AS TotalAmount,
+                                SUM(IF(status='ordered', total, 0)) AS TotalOrderAmount,
+                                SUM(IF(status='pending', total, 0)) AS TotalPendingAmount,
+                                SUM(IF(status='delivered', total, 0)) AS TotalDeliveredAmount,
+                                SUM(IF(status='canceled', total, 0)) AS TotalCanceledAmount,
+                                COUNT(*) AS Total,
+                                SUM(IF(status='ordered', 1, 0)) AS TotalOrdered,
+                                SUM(IF(status='pending', 1, 0)) AS TotalPending,
+                                SUM(IF(status='delivered', 1, 0)) AS TotalDelivered,
+                                SUM(IF(status='canceled', 1, 0)) AS TotalCanceled
+                            FROM orders");
 
-        $deliveredOrders = Order::where('status', 'delivered')->count();
-        $deliveredOrdersAmount = Order::where('status', 'delivered')->sum('total');
+                // Retrieve the first item from the result array
+                $data = $dashBoardDatas[0];
+                $montOfDatas = DB::select("
+                SELECT
+                    M.id AS MonthNo,
+                    M.name AS MonthName,
+                    IFNULL(D.TotalAmount, 0) AS TotalAmount,
+                    IFNULL(D.TotalOrderAmount, 0) AS TotalOrderAmount,
+                    IFNULL(D.TotalDeliveredAmount, 0) AS TotalDeliveredAmount,
+                    IFNULL(D.TotalCanceledAmount, 0) AS TotalCanceledAmount
+                FROM
+                    month_names M
+                LEFT JOIN
+                (
+                    SELECT
+                        DATE_FORMAT(created_at, '%b') AS monthName,
+                        MONTH(created_at) AS MonthNo,
+                        SUM(total) AS TotalAmount,
+                        SUM(IF(status='ordered', total, 0)) AS TotalOrderAmount,
+                        SUM(IF(status='delivered', total, 0)) AS TotalDeliveredAmount,
+                        SUM(IF(status='canceled', total, 0)) AS TotalCanceledAmount,
+                        COUNT(*) AS Total
+                    FROM
+                        orders
+                    WHERE
+                        YEAR(created_at) = YEAR(NOW())
+                    GROUP BY
+                        YEAR(created_at), MONTH(created_at), DATE_FORMAT(created_at, '%b')
+                ) D
+                ON D.MonthNo = M.id
+                ORDER BY M.id
+            ");
+            $dataM = $dashBoardDatas[0];
+            //dd($dataM);
 
-        $canceledOrders = Order::where('status', 'canceled')->count();
-        $canceledOrdersAmount = Order::where('status', 'canceled')->sum('total');
-        $recentOrders = Order::orderBy('created_at', 'DESC')->limit(5)->get();
+            // $AmountM = implode(',',collect($montOfDatas)->pluck('TotalAmount')->toArray());
+            // $OrderM = implode(',',collect($montOfDatas)->pluck('TotalOrderAmount')->toArray());
+            // $DeliveredM = implode(',', collect($montOfDatas)->pluck('TotalDeliveredAmount')->toArray());
 
-        // Define date ranges
-        $thisWeekStart = Carbon::now()->startOfWeek();
-        $thisWeekEnd = Carbon::now()->endOfWeek();
-        $lastWeekStart = Carbon::now()->subWeek()->startOfWeek();
-        $lastWeekEnd = Carbon::now()->subWeek()->endOfWeek();
 
-        // Fetch data for this week
-        $earningsThisWeek = Order::whereBetween('created_at', [$thisWeekStart, $thisWeekEnd])->sum('total');
-        $totalOrdersThisWeek = Order::whereBetween('created_at', [$thisWeekStart, $thisWeekEnd])->count();
 
-        // Fetch data for last week
-        $earningsLastWeek = Order::whereBetween('created_at', [$lastWeekStart, $lastWeekEnd])->sum('total');
-        $totalOrdersLastWeek = Order::whereBetween('created_at', [$lastWeekStart, $lastWeekEnd])->count();
 
-        // Calculate percentage change
-        $revenueChange = $earningsLastWeek == 0 ? 0 : (($earningsThisWeek - $earningsLastWeek) / $earningsLastWeek) * 100;
-        $orderChange = $totalOrdersLastWeek == 0 ? 0 : (($totalOrdersThisWeek - $totalOrdersLastWeek) / $totalOrdersLastWeek) * 100;
-
-        // Data for chart (monthly)
-        $months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        $totalMonthlyData = $this->getMonthlyData('total');
-        $pendingMonthlyData = $this->getMonthlyData('pending');
-        $deliveredMonthlyData = $this->getMonthlyData('delivered');
-        $canceledMonthlyData = $this->getMonthlyData('canceled');
-
-        return view('admin.index', compact(
-            'totalOrders',
-            'totalAmount',
-            'pendingOrders',
-            'pendingOrdersAmount',
-            'deliveredOrders',
-            'deliveredOrdersAmount',
-            'canceledOrders',
-            'canceledOrdersAmount',
-            'recentOrders',
-            'earningsThisWeek',
-            'earningsLastWeek',
-            'totalOrdersThisWeek',
-            'totalOrdersLastWeek',
-            'revenueChange',
-            'orderChange',
-            'months',
-            'totalMonthlyData',
-            'pendingMonthlyData',
-            'deliveredMonthlyData',
-            'canceledMonthlyData'
-        ));
+        return view('admin.index', compact('orders','data','dataM'));
     }
+
 
     private function getMonthlyData($status)
     {
@@ -705,4 +708,104 @@ class AdminController extends Controller
         }
         return redirect()->route('admin.order.show',$request->order_id)->with('success', 'Order status updated successfully.');
     }
+
+    public function slides(){
+        $slides = Slide::orderBy('created_at', 'DESC')->paginate(3);
+        return view('admin.slide', compact('slides'));
+    }
+
+    public function addSlide(){
+        return view('admin.slide-create');
+    }
+
+    public function storeSlide(Request $request)
+    {
+        // Validate the input fields
+        $request->validate([
+            'tagline' => 'required|string|max:255',
+            'title' => 'required|string|max:255',
+            'subtitle' => 'required|string|max:255',
+            'link' => 'required|url',
+            'status' => 'required|in:0,1',
+            'image' => 'required|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        // Create a new slide
+        $slide = new Slide();
+        $slide->tagline = $request->input('tagline');
+        $slide->title = $request->input('title');
+        $slide->subtitle = $request->input('subtitle');
+        $slide->link = $request->input('link');
+        $slide->status = $request->input('status');
+
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $image_name = time().'.'.$image->getClientOriginalExtension();
+            $image->move(public_path('uploads/slides'), $image_name);
+            $slide->image = $image_name;
+        }
+
+        // Save the slide record
+        $slide->save();
+
+        // Redirect with success message
+        return redirect()->route('admin.slides')->with('success', 'Slide created successfully.');
+    }
+
+
+    public function editSlide($id){
+        $slide = Slide::find($id);
+        return view('admin.edit-slide', compact('slide'));
+    }
+
+    public function updateSlide(Request $request, $id)
+    {
+        $request->validate([
+            'tagline' => 'required',
+            'title' => 'required',
+            'subtitle' => 'required',
+            'link' => 'required|url',
+            'status' => 'required',
+            'image' => 'nullable|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        $slide = Slide::findOrFail($id);
+
+        // Update slide fields
+        $slide->tagline = $request->input('tagline');
+        $slide->title = $request->input('title');
+        $slide->subtitle = $request->input('subtitle');
+        $slide->link = $request->input('link');
+        $slide->status = $request->input('status');
+
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            // Delete the old image
+            if ($slide->image && file_exists(public_path('uploads/slides/' . $slide->image))) {
+                unlink(public_path('uploads/slides/' . $slide->image));
+            }
+
+            // Upload new image
+            $image = $request->file('image');
+            $imageName = time() . '.' . $image->extension();
+            $image->move(public_path('uploads/slide'), $imageName);
+            $slide->image = $imageName;
+        }
+
+        $slide->save();
+
+        return redirect()->route('admin.slides')->with('success', 'Slide updated successfully.');
+    }
+
+    public function deleteSlide($id){
+        $slide = Slide::find($id);
+        if ($slide->image && file_exists(public_path('uploads/slides/' . $slide->image))) {
+            unlink(public_path('uploads/slides/' . $slide->image));
+        }
+        $slide->delete();
+        return redirect()->route('admin.slides')->with('success', 'Slide deleted successfully.');
+    }
+
+
 }

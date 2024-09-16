@@ -2,10 +2,13 @@
 
 @section('content')
 <style>
-     .brand-list li, .category-list li{
+    .brand-list li,
+    .category-list li {
         line-height: 40px;
     }
-    .chk-brand, .category-list li .chk-category{
+
+    .chk-brand,
+    .category-list li .chk-category {
         width: 1rem;
         height: 1rem;
         color: #b1d6e8;
@@ -13,8 +16,9 @@
         border-radius: 0;
         margin-right: 0.75rem;
     }
-    .filled-heart{
-      color: orange;
+
+    .filled-heart {
+        color: orange;
     }
 </style>
 <main class="pt-90">
@@ -159,7 +163,10 @@
                         </button>
                     </h5>
                     <div id="accordion-filter-price" class="accordion-collapse collapse show border-0" aria-labelledby="accordion-heading-price" data-bs-parent="#price-filters">
-                        <input class="price-range-slider" type="text" name="price_range" value="" data-slider-min="1" data-slider-max="500" data-slider-step="5" data-slider-value="[{{ $minPrice }}, {{ $maxPrice }}]" data-currency="$" />
+                        <input class="price-range-slider" type="text" name="price_range" value=""
+                            data-slider-min="1" data-slider-max="10000" data-slider-step="5"
+                            data-slider-value="[{{ $minPrice }}, {{ $maxPrice }}]" data-currency="₹" />
+
                         <div class="price-range__info d-flex align-items-center mt-2">
                             <div class="me-auto">
                                 <span class="text-secondary">Min Price: </span>
@@ -171,6 +178,8 @@
                             </div>
                         </div>
                     </div>
+
+
                 </div>
             </div>
         </div>
@@ -251,8 +260,10 @@
                     </div>
                 </div>
 
+
                 <div class="container p-3 p-xl-5">
                     <div class="slideshow-pagination d-flex align-items-center position-absolute bottom-0 mb-4 pb-xl-2">
+
                     </div>
 
                 </div>
@@ -311,28 +322,26 @@
                 <div class="product-card-wrapper">
                     <div class="product-card mb-3 mb-md-4 mb-xxl-5">
                         <div class="pc__img-wrapper">
-                            <div class="swiper-container background-img js-swiper-slider" data-settings='{"resizeObserver": true}'>
+                            <div class="swiper-container background-img js-swiper-slider-1" data-settings='{"resizeObserver": true}'>
                                 <div class="swiper-wrapper">
                                     <div class="swiper-slide">
-                                        <a href="{{ route('shop.product_details', ['product_slug' => $product->slug]) }}"><img loading="lazy" src="{{ asset('uploads/products/thumbnails') }}/{{$product->image}}" width="330" height="400" alt="{{ $product->name }}" class="pc__img"></a>
-                                    </div>
-                                    <div class="swiper-slide">
-                                        @php
-                                        // Decode the JSON string to get an array of image names
-                                        $images = json_decode($product->gallery_images, true);
-                                        @endphp
-
-                                        @foreach ($images as $gimg)
-                                        @php
-                                        // Trim any extra characters
-                                        $gimg = trim($gimg, '[]"');
-                                        @endphp
                                         <a href="{{ route('shop.product_details', ['product_slug' => $product->slug]) }}">
-                                            <img loading="lazy" src="{{ asset('uploads/products/' . $gimg) }}" class="pc__img">
+                                            <img loading="lazy" src="{{ asset('uploads/products/thumbnails') }}/{{ $product->image }}" width="330" height="400" alt="{{ $product->name }}" class="pc__img">
                                         </a>
-                                        @endforeach
                                     </div>
+                                    @php
+                                    $images = json_decode($product->gallery_images, true);
+                                    @endphp
 
+                                    @if(is_array($images))
+                                    @foreach ($images as $gimg)
+                                    <div class="swiper-slide">
+                                        <a href="{{ route('shop.product_details', ['product_slug' => $product->slug]) }}">
+                                            <img loading="lazy" src="{{ asset('uploads/products/' . trim($gimg)) }}" class="pc__img" alt="{{ $product->name }}">
+                                        </a>
+                                    </div>
+                                    @endforeach
+                                    @endif
                                 </div>
                                 <span class="pc__img-prev"><svg width="7" height="11" viewBox="0 0 7 11" xmlns="http://www.w3.org/2000/svg">
                                         <use href="#icon_prev_sm" />
@@ -341,55 +350,45 @@
                                         <use href="#icon_next_sm" />
                                     </svg></span>
                             </div>
-                            @if(Cart::instance('cart')->content()->where('id',$product->id)->count()>0)
-                            <a href="{{route('cart.index')}}" class="pc__atc btn anim_appear-bottom btn position-absolute border-0 text-uppercase fw-medium btn-warning">Go
-                                to Cart</a><br>
+                            @if(Cart::instance('cart')->content()->where('id', $product->id)->count() > 0)
+                            <a href="{{ route('cart.index') }}" class="pc__atc btn anim_appear-bottom btn position-absolute border-0 text-uppercase fw-medium btn-warning">Go to Cart</a><br>
                             @else
-                            <form name="addtocart-form" action="{{route('cart.add')}}" method="post">
+                            <form name="addtocart-form" action="{{ route('cart.add') }}" method="post">
                                 @csrf
-                                <input type="hidden" name="id" value="{{$product->id}}">
-                                <input type="hidden" name="name" value="{{$product->name}}">
+                                <input type="hidden" name="id" value="{{ $product->id }}">
+                                <input type="hidden" name="name" value="{{ $product->name }}">
                                 <input type="hidden" name="quantity" value="1">
-                                <input type="hidden" name="price" value="{{$product->sale_price == '' ? $product->regular_price : $product->sale_price}}">
+                                <input type="hidden" name="price" value="{{ $product->sale_price ?: $product->regular_price }}">
                                 <button type="submit" class="pc__atc btn anim_appear-bottom btn position-absolute border-0 text-uppercase fw-medium" data-aside="cartDrawer" title="Add To Cart">Add To Cart</button>
                             </form>
                             @endif
                         </div>
 
+
                         <div class="pc__info position-relative">
                             <p class="pc__category">{{ $product->category->name }}</p>
-                            <h6 class="pc__title"><a href="{{ route('shop.product_details', ['product_slug' => $product->slug]) }}">{{ $product->name }}</a>
+                            <h6 class="pc__title">
+                                <a href="{{ route('shop.product_details', ['product_slug' => $product->slug]) }}">{{ $product->name }}</a>
                             </h6>
                             <div class="product-card__price d-flex">
                                 <span class="money price">
                                     @if ($product->sale_price)
-                                    <s>₹{{ $product->regulal_price }}</s>{{ $product->sale_price }}
+                                    <s>₹{{ $product->regular_price }}</s> ₹{{ $product->sale_price }}
                                     @else
-                                    ₹{{ $product->regulal_price }}
+                                    ₹{{ $product->regular_price }}
                                     @endif
                                 </span>
                             </div>
                             <div class="product-card__review d-flex align-items-center">
                                 <div class="reviews-group d-flex">
-                                    <svg class="review-star" viewBox="0 0 9 9" xmlns="http://www.w3.org/2000/svg">
+                                    @for ($i = 0; $i < 5; $i++) <svg class="review-star" viewBox="0 0 9 9" xmlns="http://www.w3.org/2000/svg">
                                         <use href="#icon_star" />
-                                    </svg>
-                                    <svg class="review-star" viewBox="0 0 9 9" xmlns="http://www.w3.org/2000/svg">
-                                        <use href="#icon_star" />
-                                    </svg>
-                                    <svg class="review-star" viewBox="0 0 9 9" xmlns="http://www.w3.org/2000/svg">
-                                        <use href="#icon_star" />
-                                    </svg>
-                                    <svg class="review-star" viewBox="0 0 9 9" xmlns="http://www.w3.org/2000/svg">
-                                        <use href="#icon_star" />
-                                    </svg>
-                                    <svg class="review-star" viewBox="0 0 9 9" xmlns="http://www.w3.org/2000/svg">
-                                        <use href="#icon_star" />
-                                    </svg>
+                                        </svg>
+                                        @endfor
                                 </div>
                                 <span class="reviews-note text-lowercase text-secondary ms-1">8k+ reviews</span>
                             </div>
-                            @if (Cart::instance('wishlist')->count() > 0)
+                            @if(Cart::instance('wishlist')->content()->where('id', $product->id)->count() > 0)
                             <button class="pc__btn-wl position-absolute top-0 end-0 bg-transparent border-0 js-add-wishlist filled-heart" title="Add To Wishlist">
                                 <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <use href="#icon_heart" class="wishlist-icon" />
@@ -400,7 +399,7 @@
                                 @csrf
                                 <input type="hidden" name="id" value="{{ $product->id }}">
                                 <input type="hidden" name="name" value="{{ $product->name }}">
-                                <input type="hidden" name="price" value="{{ $product->sale_price == '' ? $product->regular_price : $product->sale_price }}">
+                                <input type="hidden" name="price" value="{{ $product->sale_price ?: $product->regular_price }}">
                                 <input type="hidden" name="quantity" value="1">
                                 <button class="pc__btn-wl position-absolute top-0 end-0 bg-transparent border-0 js-add-wishlist" title="Add To Wishlist">
                                     <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -414,6 +413,7 @@
                 </div>
                 @endforeach
             </div>
+
 
             <div class="divider"></div>
             <div class="flex items-center justify-between flex-wrap gap10 wgp-pagination">
@@ -429,14 +429,29 @@
     <input type="hidden" name="order" id="order" value="{{ $order }}">
     <input type="hidden" name="brands" id="hdnbrand" value="{{ $fbrands }}">
     <input type="hidden" name="categories" id="hdncategory" value="{{ $fcategories }}">
-    <input type="hidden" name="min_price" id="min-price" value="{{ request('min_price') }}">
-    <input type="hidden" name="max_price" id="max-price" value="{{ request('max_price') }}">
+    <input type="hidden" name="min" id="hdnMinPrice" value="{{ request('min_price') }}">
+    <input type="hidden" name="max" id="hdnMaxPrice" value="{{ request('max_price') }}">
 </form>
-
 @endsection
 
 @push('scripts')
 <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.js-swiper-slider').forEach(function(swiperContainer) {
+            const settings = JSON.parse(swiperContainer.getAttribute('data-settings'));
+
+            new Swiper(swiperContainer, settings);
+        });
+    });
+    document.addEventListener('DOMContentLoaded', function() {
+        var swiper = new Swiper('.js-swiper-slider-1', {
+            loop: true,
+            navigation: {
+                nextEl: '.pc__img-next',
+                prevEl: '.pc__img-prev',
+            },
+        });
+    });
     $(function() {
         $('#pagesize').on('change', function() {
             $('#size').val($(this).val());
@@ -466,19 +481,14 @@
             $('#formfilter').submit();
         });
 
-
-        // Initialize price range slider
-        $('.price-range-slider').slider({
-            formatter: function(value) {
-                return 'Current value: ' + value;
-            }
-        }).on('change', function() {
-            let values = $(this).data('slider').getValue();
-            $('#min-price').val(values[0]);
-            $('#max-price').val(values[1]);
+        $("[name='price_range']").on('change', function() {
+            var values = $(this).val().split(',');
+            var min = values[0];
+            var max = values[1];
+            $("#hdnMinPrice").val(min);
+            $("#hdnMaxPrice").val(max);
             $('#formfilter').submit();
         });
-
     });
 </script>
 @endpush

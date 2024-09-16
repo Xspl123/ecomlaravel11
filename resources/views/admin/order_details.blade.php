@@ -188,7 +188,6 @@
                 </table>
             </div>
         </div>
-
         <div class="wg-box">
             <div class="flex items-center justify-between gap10 flex-wrap">
                 <div class="wg-filter flex-grow">

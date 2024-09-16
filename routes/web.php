@@ -10,11 +10,30 @@ use App\Http\Middleware\AuthAdmin;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
-
+use Illuminate\Support\Facades\Mail;
+use App\Mail\ContactSubmitted;
 
 Auth::routes();
 
+
+Route::get('/test-email', function () {
+    $data = [
+        'name' => 'John Doe',
+        'email' => 'john.doe@example.com',
+        'phone' => '1234567890',
+        'comment' => 'This is a test email.'
+    ];
+
+    Mail::to('info@akashpoweryogastudio.com')->send(new ContactSubmitted($data));
+
+    return 'Email sent!';
+});
+
 Route::get('/', [HomeController::class, 'index'])->name('home.index');
+Route::get('/contact', [HomeController::class, 'contact'])->name('home.contact');
+Route::post('/contact/add', [HomeController::class, 'addContact'])->name('home.add_contact');
+Route::get('/about', [HomeController::class, 'about'])->name('home.about');
+
 
 Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
 Route::get('/shop/product/{product_slug}', [ShopController::class, 'product_details'])->name('shop.product_details');
@@ -25,13 +44,9 @@ Route::put('/shop/cart/increase/{rowId}', [CartController::class, 'increase_cart
 Route::put('/shop/cart/decrease/{rowId}', [CartController::class, 'decrease_cart_quantity'])->name('cart.decrease');
 Route::delete('/cart/remove/{rowId}', [CartController::class, 'remove_cart_item'])->name('cart.remove');
 Route::delete('/shop/cart/clear', [CartController::class, 'clear_cart'])->name('cart.clear');
-
 Route::post('/shop/cart/apply-coupon', [CartController::class, 'apply_coupon'])->name('cart.apply_coupon');
-
 Route::delete('/shop/cart/remove-coupon', [CartController::class, 'remove_coupon'])->name('cart.remove_coupon');
-
 Route::get('/checkout', [CartController::class, 'checkout'])->name('cart.checkout');
-
 Route::post('/place-an-order',[CartController::class, 'place_order'])->name('cart.place_order');
 
 
@@ -88,8 +103,21 @@ Route::middleware(['auth', AuthAdmin::class])->group(function () {
     Route::post('/coupons/{id}', [AdminController::class, 'updateCoupon'])->name('coupons.update');
     Route::delete('/coupons/{id}', [AdminController::class, 'CouponDestroy'])->name('coupons.destroy');
 
+
     //Orders routes
     Route::get('admin/orders', [AdminController::class, 'orders'])->name('admin.orders');
     Route::get('/order-show/{order_id}', [AdminController::class, 'order_details'])->name('admin.order.show');
     Route::put('/admin/orders/{id}/update-status', [AdminController::class, 'update_order_status'])->name('admin.order_status_update');
+
+    //Slide route
+
+    Route::get('admin/slides', [AdminController::class, 'slides'])->name('admin.slides');
+    Route::get('admin/slides/new', [AdminController::class, 'addSlide'])->name('admin.slide_new');
+    Route::post('admin/slides/store', [AdminController::class, 'storeSlide'])->name('admin.slide_store');
+    Route::get('/slide-edit/{id}', [AdminController::class, 'editSlide'])->name('admin.slide_edit');
+    Route::put('/slides/{id}', [AdminController::class, 'updateSlide'])->name('admin.slide_update');
+    Route::delete('/slides/{id}', [AdminController::class, 'deleteSlide'])->name('admin.slide_destroy');
+
+    //Contact list
+    Route::get('/contact/list', [HomeController::class, 'contactList'])->name('contact.list');
 });

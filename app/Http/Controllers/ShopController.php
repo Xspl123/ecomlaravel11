@@ -20,10 +20,11 @@ class ShopController extends Controller
         // Retrieve query parameters with default values
         $size = $request->query('size', 10);
         $order = $request->query('order', '-1');
-        $fbrands = $request->input('brands', '');
-        $fcategories = $request->input('categories', '');
-        $minPrice = $request->input('min_price', null);
-        $maxPrice = $request->input('max_price', null);
+        $fbrands = $request->query('brands', '');
+        $fcategories = $request->query('categories', '');
+        $minPrice = $request->query('min_price', 1);
+        $maxPrice = $request->query('max_price', 10000);
+
 
         // Determine the column and order for sorting
         $o_column = '';
